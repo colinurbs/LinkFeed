@@ -22,14 +22,16 @@ $app->get('/', function () use ($app) {
 EOT;
 		echo $template;
 		$data = json_decode(file_get_contents("posts.json"));
-		
-		foreach($data as $post){
-			echo "<div class=\"post\">";
-			echo "<h2><a href=\"".$post->link."\">".$post->title."</a></h2>";
-			echo "<p>".$post->description."</p>";
-			echo $post->comment;
-			echo "</div>";
-		}
+		array_reverse($data);
+		//if(isset($data[0]->link)){
+			foreach($data as $post){
+				echo "<div class=\"post\">";
+				echo "<h2><a href=\"".$post->link."\">".$post->title."</a></h2>";
+				echo "<p>".$post->description."</p>";
+				echo $post->comment;
+				echo "</div>";
+			}
+		//}
 	
 		$template = 
 <<<EOT
@@ -38,7 +40,7 @@ EOT;
 	</html
 EOT;
 		echo $template;
-})->name("home");;
+})->name("home");
 
 //new item processing
 $app->post('/new', function () use ($app) {
@@ -51,9 +53,9 @@ $app->post('/new', function () use ($app) {
 	//use Sunra\PhpSimple\HtmlDomParser;
 	$meta = get_meta_tags ($_POST['link']);
 
-	// if (!isset($meta['description'])){
-	// 	$meta['description']="";
-	// }
+	if (!isset($meta['description'])){
+		$meta['description']="";
+	}
 
 	error_log(print_r($meta,true));
 	$data[] = array('link'=> $_POST['link'], 'comment'=> $_POST['comment'], 'title'=> $title, 'description' =>$meta['description']);
@@ -65,7 +67,7 @@ $app->post('/new', function () use ($app) {
 
 //insert test item, reset items
 $app->get('/test', function () use ($app) {
-	$post = array('link'=> "ThisIsALink", 'comment'=> "ThiIsAURL",'title'=> "meta_title", 'description' =>"meta_description");
+	$post = array();
 	$response[] = $post;
 	$fp = fopen('posts.json', 'w');
 	fwrite($fp, json_encode($response));
@@ -101,7 +103,5 @@ $app->get('/new', function () use ($app) {
 EOT;
 		echo $template;
 	});
-
 $app->run();
-
 ?>
